@@ -50,7 +50,7 @@ func NewMap[Enum IntegerEnum](enumValuesWithNames map[Enum]string) Map[Enum] {
 		}
 
 		if slices.Contains(enumMap.enumNames, name) {
-			panic("duplicate enum name '%s' given to enumnames.NewMap")
+			panic(fmt.Sprintf("duplicate enum name '%s' given to enumnames.NewMap", name))
 		}
 
 		enumMap.enumNames[index] = name
