@@ -24,7 +24,6 @@ type IntegerEnum interface {
 // also provides utility methods for getting and marshaling enum names and values.
 //
 // Panics if:
-//   - any of the given enum values are negative
 //   - the range of enum values in the map is not contiguous
 //   - there are duplicate names in the map
 func NewMap[Enum IntegerEnum](enumValuesWithNames map[Enum]string) Map[Enum] {
@@ -45,10 +44,6 @@ func NewMap[Enum IntegerEnum](enumValuesWithNames map[Enum]string) Map[Enum] {
 	}
 
 	for enumValue, name := range enumValuesWithNames {
-		if enumValue < 0 {
-			panic("negative enum value given to enumnames.NewMap")
-		}
-
 		index := enumValue - lowestEnumValue
 		if int(index) >= capacity {
 			panic("non-contiguous enum values given to enumnames.NewMap")

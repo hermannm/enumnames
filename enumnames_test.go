@@ -120,6 +120,31 @@ func TestString(t *testing.T) {
 	}
 }
 
+func TestNegativeEnum(t *testing.T) {
+	type NegativeEnum int8
+
+	const (
+		Neg1 NegativeEnum = -2
+		Neg2 NegativeEnum = -1
+		Neg3 NegativeEnum = 0
+	)
+
+	negativeEnumNames := enumnames.NewMap(map[NegativeEnum]string{
+		Neg1: "FIRST",
+		Neg2: "SECOND",
+		Neg3: "THIRD",
+	})
+
+	name, ok := negativeEnumNames.GetName(Neg2)
+	expectedName := "SECOND"
+	if !ok {
+		t.Fatalf("expected '%s', got ok=false", expectedName)
+	}
+	if name != expectedName {
+		t.Fatalf("expected '%s', got '%s'", expectedName, name)
+	}
+}
+
 func (test TestEnum) MarshalJSON() ([]byte, error) {
 	return testEnumNames.MarshalToNameJSON(test)
 }
