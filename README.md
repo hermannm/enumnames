@@ -51,12 +51,12 @@ goos: linux
 goarch: amd64
 pkg: hermannm.dev/enumnames
 cpu: AMD Ryzen 7 PRO 6850U with Radeon Graphics
-BenchmarkGetName-16                     	1000000000	         0.8644 ns/op
-BenchmarkGetNameWithMap-16              	1000000000	         7.696 ns/op
-BenchmarkEnumValueFromName-16           	1000000000	         6.176 ns/op
-BenchmarkEnumValueFromNameWithMap-16    	1000000000	         9.294 ns/op
+BenchmarkGetName-16                     	1000000000	         0.7203 ns/op
+BenchmarkGetNameWithMap-16              	1000000000	         7.505 ns/op
+BenchmarkEnumValueFromName-16           	1000000000	         6.079 ns/op
+BenchmarkEnumValueFromNameWithMap-16    	1000000000	         9.025 ns/op
 PASS
-ok  	hermannm.dev/enumnames	26.493s
+ok  	hermannm.dev/enumnames	25.787s
 ```
 
-The benchmarks use a `uint8` as the enum type, with 255 variants. We see that `BenchmarkGetName`, which uses `enumnames.Map`, is 8.9x faster than `BenchmarkGetNameWithMap`, which uses `map[uint8]string`. The reverse lookup, `BenchmarkEnumValueFromName`, is also 50% faster than `BenchmarkEnumValueFromNameWithMap`, which uses a `map[string]uint8`.
+The benchmarks use a `uint8` as the enum type, with 255 variants. We see that `BenchmarkGetName`, which uses `enumnames.Map`, is 10x faster than `BenchmarkGetNameWithMap`, which uses `map[uint8]string`. The reverse lookup, `BenchmarkEnumValueFromName`, is almost 50% faster than `BenchmarkEnumValueFromNameWithMap`, which uses a `map[string]uint8`.
