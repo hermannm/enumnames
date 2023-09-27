@@ -112,6 +112,14 @@ func TestNames(t *testing.T) {
 	}
 }
 
+func TestString(t *testing.T) {
+	expected := "enumnames.Map[1:Test 1 2:Test 2 3:Test 3]"
+	actual := testEnumNames.String()
+	if expected != actual {
+		t.Fatalf("expected '%s', got '%s'", expected, actual)
+	}
+}
+
 func (test TestEnum) MarshalJSON() ([]byte, error) {
 	return testEnumNames.MarshalToNameJSON(test)
 }

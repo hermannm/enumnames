@@ -3,6 +3,7 @@ package enumnames
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -95,6 +96,26 @@ func (enumMap Map[Enum]) Names() []string {
 	names := make([]string, len(enumMap.enumNames))
 	copy(names, enumMap.enumNames)
 	return names
+}
+
+func (enumMap Map[Enum]) String() string {
+	var builder strings.Builder
+
+	lowestEnumValue := int(enumMap.lowestEnumValue)
+	lastIndex := len(enumMap.enumNames) - 1
+
+	builder.WriteString("enumnames.Map[")
+	for i, name := range enumMap.enumNames {
+		builder.WriteString(strconv.Itoa(i + lowestEnumValue))
+		builder.WriteRune(':')
+		builder.WriteString(name)
+		if i != lastIndex {
+			builder.WriteRune(' ')
+		}
+	}
+	builder.WriteRune(']')
+
+	return builder.String()
 }
 
 func (enumMap Map[Enum]) index(enumValue Enum) (index Enum, inBounds bool) {
