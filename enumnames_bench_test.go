@@ -7,6 +7,8 @@ import (
 	"hermannm.dev/enumnames"
 )
 
+type BenchmarkEnum uint8
+
 var enumMap, nameMap, valueMap = makeBenchmarkMaps(255)
 
 func BenchmarkGetEnumName(b *testing.B) {
@@ -37,15 +39,17 @@ func BenchmarkEnumValueFromNameWithMap(b *testing.B) {
 	}
 }
 
-func makeBenchmarkMaps(
-	size uint8,
-) (enumMap enumnames.Map[TestEnum], nameMap map[TestEnum]string, valueMap map[string]TestEnum) {
-	nameMap = make(map[TestEnum]string, int(size))
+func makeBenchmarkMaps(size uint8) (
+	enumMap enumnames.Map[BenchmarkEnum],
+	nameMap map[BenchmarkEnum]string,
+	valueMap map[string]BenchmarkEnum,
+) {
+	nameMap = make(map[BenchmarkEnum]string, int(size))
 	for i := uint8(0); i < size; i++ {
-		nameMap[TestEnum(i)] = fmt.Sprintf("Test %d", i)
+		nameMap[BenchmarkEnum(i)] = fmt.Sprintf("Test %d", i)
 	}
 
-	valueMap = make(map[string]TestEnum, len(nameMap))
+	valueMap = make(map[string]BenchmarkEnum, len(nameMap))
 	for enumValue, name := range nameMap {
 		valueMap[name] = enumValue
 	}

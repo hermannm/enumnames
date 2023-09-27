@@ -128,12 +128,12 @@ func (test *TestEnum) UnmarshalJSON(bytes []byte) error {
 	return testEnumNames.UnmarshalFromNameJSON(bytes, test)
 }
 
-type jsonExample struct {
+type JSONExample struct {
 	EnumField TestEnum `json:"enumField"`
 }
 
 func TestMarshalToNameJSON(t *testing.T) {
-	example := jsonExample{EnumField: Test1}
+	example := JSONExample{EnumField: Test1}
 
 	bytes, err := json.Marshal(example)
 	if err != nil {
@@ -155,7 +155,7 @@ func TestMarshalToNameJSON(t *testing.T) {
 func TestUnmarshalFromNameJSON(t *testing.T) {
 	jsonInput := []byte(`{"enumField":"FIRST"}`)
 
-	var result jsonExample
+	var result JSONExample
 	if err := json.Unmarshal(jsonInput, &result); err != nil {
 		t.Fatalf("expected JSON unmarshaling of enum value to succeed, but got error: %v", err)
 	}
@@ -165,7 +165,7 @@ func TestUnmarshalFromNameJSON(t *testing.T) {
 	}
 
 	invalidJSONInput := []byte(`{"enumField":"garbage user input"}`)
-	var result2 jsonExample
+	var result2 JSONExample
 	if err := json.Unmarshal(invalidJSONInput, &result2); err == nil {
 		t.Fatal("expected JSON unmarshaling to fail for invalid enum name")
 	}
