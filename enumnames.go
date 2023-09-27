@@ -61,7 +61,7 @@ func NewMap[Enum IntegerEnum](enumValuesWithNames map[Enum]string) Map[Enum] {
 
 // GetName gets the mapped name for the given enum value, or ok=false if it is not mapped.
 func (enumMap Map[Enum]) GetName(enumValue Enum) (name string, ok bool) {
-	index, inBounds := enumMap.index(enumValue)
+	index, inBounds := enumMap.enumToIndex(enumValue)
 	if !inBounds {
 		return "", false
 	}
@@ -81,9 +81,9 @@ func (enumMap Map[Enum]) GetNameOrFallback(enumValue Enum, fallback string) (nam
 // EnumValueFromName gets the corresponding enum value for the given name, or ok=false if no enum
 // value is mapped to the name.
 func (enumMap Map[Enum]) EnumValueFromName(name string) (enumValue Enum, ok bool) {
-	for candidate, candidateName := range enumMap.enumNames {
-		if candidateName == name {
-			return Enum(candidate) + enumMap.lowestEnumValue, true
+	for i, candidate := range enumMap.enumNames {
+		if candidate == name {
+			return enumMap.indexToEnum(i), true
 		}
 	}
 
@@ -92,7 +92,7 @@ func (enumMap Map[Enum]) EnumValueFromName(name string) (enumValue Enum, ok bool
 
 // ContainsEnumValue checks if the given enum value exists in the map.
 func (enumMap Map[Enum]) ContainsEnumValue(enumValue Enum) bool {
-	_, inBounds := enumMap.index(enumValue)
+	_, inBounds := enumMap.enumToIndex(enumValue)
 	return inBounds
 }
 
@@ -116,7 +116,7 @@ func (enumMap Map[Enum]) Size() int {
 func (enumMap Map[Enum]) EnumValues() []Enum {
 	values := make([]Enum, len(enumMap.enumNames))
 	for i := range enumMap.enumNames {
-		values[i] = Enum(i) + enumMap.lowestEnumValue
+		values[i] = enumMap.indexToEnum(i)
 	}
 	return values
 }
@@ -150,12 +150,16 @@ func (enumMap Map[Enum]) String() string {
 	return builder.String()
 }
 
-func (enumMap Map[Enum]) index(enumValue Enum) (index Enum, inBounds bool) {
+func (enumMap Map[Enum]) enumToIndex(enumValue Enum) (index Enum, inBounds bool) {
 	index = enumValue - enumMap.lowestEnumValue
 	if index < 0 || int(index) >= len(enumMap.enumNames) {
 		return 0, false
 	}
 	return index, true
+}
+
+func (enumMap Map[Enum]) indexToEnum(index int) (enumValue Enum) {
+	return Enum(index) + enumMap.lowestEnumValue
 }
 
 // MarshalToNameJSON marshals the given enum value to its mapped name.
