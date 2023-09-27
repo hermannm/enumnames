@@ -120,6 +120,32 @@ func TestString(t *testing.T) {
 	}
 }
 
+func TestNonContiguousEnumValues(t *testing.T) {
+	defer func() {
+		if err := recover(); err == nil {
+			t.Fatal("expected NewMap to panic on non-contiguous values")
+		}
+	}()
+
+	enumnames.NewMap(map[uint8]string{
+		0: "FIRST",
+		2: "THIRD",
+	})
+}
+
+func TestDuplicateEnumNames(t *testing.T) {
+	defer func() {
+		if err := recover(); err == nil {
+			t.Fatal("expected NewMap to panic on duplicate enum names")
+		}
+	}()
+
+	enumnames.NewMap(map[uint8]string{
+		0: "FIRST",
+		1: "FIRST",
+	})
+}
+
 func TestNegativeEnum(t *testing.T) {
 	type NegativeEnum int8
 
