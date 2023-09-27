@@ -77,7 +77,20 @@ func TestContainsEnumValue(t *testing.T) {
 
 	invalidEnumValue := TestEnum(100)
 	if testEnumNames.ContainsEnumValue(invalidEnumValue) {
-		t.Fatal("expected Contains to return false for invalid enum value")
+		t.Fatal("expected ContainsEnumValue to return false for invalid enum value")
+	}
+}
+
+func TestContainsName(t *testing.T) {
+	for _, name := range testEnumMap {
+		if !testEnumNames.ContainsName(name) {
+			t.Fatalf("expected enum names to contain '%s'", name)
+		}
+	}
+
+	invalidEnumName := "garbage user input"
+	if testEnumNames.ContainsName(invalidEnumName) {
+		t.Fatal("expected ContainsName to return false for invalid name")
 	}
 }
 

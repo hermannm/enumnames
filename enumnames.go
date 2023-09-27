@@ -96,6 +96,16 @@ func (enumMap Map[Enum]) ContainsEnumValue(enumValue Enum) bool {
 	return inBounds
 }
 
+// ContainsName checks if any enum value maps to the given name.
+func (enumMap Map[Enum]) ContainsName(name string) bool {
+	for _, candidate := range enumMap.enumNames {
+		if candidate == name {
+			return true
+		}
+	}
+	return false
+}
+
 // Size returns the number of enum values in the map.
 func (enumMap Map[Enum]) Size() int {
 	return len(enumMap.enumNames)
