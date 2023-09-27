@@ -83,6 +83,20 @@ func (enumMap Map[Enum]) Size() int {
 	return len(enumMap.enumNames)
 }
 
+func (enumMap Map[Enum]) EnumValues() []Enum {
+	values := make([]Enum, 0, len(enumMap.enumNames))
+	for i := range enumMap.enumNames {
+		values = append(values, Enum(i)+enumMap.lowestEnumValue)
+	}
+	return values
+}
+
+func (enumMap Map[Enum]) Names() []string {
+	names := make([]string, len(enumMap.enumNames))
+	copy(names, enumMap.enumNames)
+	return names
+}
+
 func (enumMap Map[Enum]) index(enumValue Enum) (index Enum, inBounds bool) {
 	index = enumValue - enumMap.lowestEnumValue
 	if index < 0 || int(index) >= len(enumMap.enumNames) {

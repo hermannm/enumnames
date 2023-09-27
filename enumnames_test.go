@@ -88,6 +88,30 @@ func TestSize(t *testing.T) {
 	}
 }
 
+func TestEnumValues(t *testing.T) {
+	enumValues := testEnumNames.EnumValues()
+
+	if len(enumValues) != 3 {
+		t.Fatalf("expected enum values with length 3, got %+v", enumValues)
+	}
+
+	if enumValues[0] != Test1 || enumValues[1] != Test2 || enumValues[2] != Test3 {
+		t.Fatalf("expected [Test1, Test2, Test3], got %+v", enumValues)
+	}
+}
+
+func TestNames(t *testing.T) {
+	names := testEnumNames.Names()
+
+	if len(names) != 3 {
+		t.Fatalf("expected enum names with length 3, got %+v", names)
+	}
+
+	if names[0] != "Test 1" || names[1] != "Test 2" || names[2] != "Test 3" {
+		t.Fatalf("expected ['Test 1', 'Test 2', 'Test 3'], got %+v", names)
+	}
+}
+
 func (test TestEnum) MarshalJSON() ([]byte, error) {
 	return testEnumNames.MarshalToNameJSON(test)
 }
