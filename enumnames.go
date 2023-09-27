@@ -90,8 +90,8 @@ func (enumMap Map[Enum]) EnumValueFromName(name string) (enumValue Enum, ok bool
 	return 0, false
 }
 
-// Contains checks if the given enum value exists in the map.
-func (enumMap Map[Enum]) Contains(enumValue Enum) bool {
+// ContainsEnumValue checks if the given enum value exists in the map.
+func (enumMap Map[Enum]) ContainsEnumValue(enumValue Enum) bool {
 	_, inBounds := enumMap.index(enumValue)
 	return inBounds
 }
