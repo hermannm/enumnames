@@ -11,32 +11,49 @@ type BenchmarkEnum uint8
 
 var enumMap, nameMap, valueMap = makeBenchmarkMaps(255)
 
-func BenchmarkGetEnumName(b *testing.B) {
+// Global variables to avoid the compiler optimizing away our benchmarked function calls
+// (see https://dave.cheney.net/2013/06/30/how-to-write-benchmarks-in-go)
+var globalName string
+var globalValue BenchmarkEnum
+
+func BenchmarkGetName(b *testing.B) {
+	var name string
+
 	for i := 0; i < b.N; i++ {
-		name, _ := enumMap.GetName(1)
-		_ = name
+		name, _ = enumMap.GetName(1)
 	}
+
+	globalName = name
 }
 
-func BenchmarkGetEnumNameWithMap(b *testing.B) {
+func BenchmarkGetNameWithMap(b *testing.B) {
+	var name string
+
 	for i := 0; i < b.N; i++ {
-		name := nameMap[1]
-		_ = name
+		name = nameMap[1]
 	}
+
+	globalName = name
 }
 
 func BenchmarkEnumValueFromName(b *testing.B) {
+	var value BenchmarkEnum
+
 	for i := 0; i < b.N; i++ {
-		value, _ := enumMap.EnumValueFromName("Test 1")
-		_ = value
+		value, _ = enumMap.EnumValueFromName("Test 1")
 	}
+
+	globalValue = value
 }
 
 func BenchmarkEnumValueFromNameWithMap(b *testing.B) {
+	var value BenchmarkEnum
+
 	for i := 0; i < b.N; i++ {
-		value := valueMap["Test 1"]
-		_ = value
+		value = valueMap["Test 1"]
 	}
+
+	globalValue = value
 }
 
 func makeBenchmarkMaps(size uint8) (
