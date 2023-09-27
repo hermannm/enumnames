@@ -16,9 +16,9 @@ const (
 )
 
 var testEnumMap = map[TestEnum]string{
-	Test1: "Test 1",
-	Test2: "Test 2",
-	Test3: "Test 3",
+	Test1: "FIRST",
+	Test2: "SECOND",
+	Test3: "THIRD",
 }
 
 var testEnumNames = enumnames.NewMap(testEnumMap)
@@ -107,13 +107,13 @@ func TestNames(t *testing.T) {
 		t.Fatalf("expected enum names with length 3, got %+v", names)
 	}
 
-	if names[0] != "Test 1" || names[1] != "Test 2" || names[2] != "Test 3" {
-		t.Fatalf("expected ['Test 1', 'Test 2', 'Test 3'], got %+v", names)
+	if names[0] != "FIRST" || names[1] != "SECOND" || names[2] != "THIRD" {
+		t.Fatalf("expected ['FIRST', 'SECOND', 'THIRD'], got %+v", names)
 	}
 }
 
 func TestString(t *testing.T) {
-	expected := "enumnames.Map[1:Test 1 2:Test 2 3:Test 3]"
+	expected := "enumnames.Map[1:FIRST 2:SECOND 3:THIRD]"
 	actual := testEnumNames.String()
 	if expected != actual {
 		t.Fatalf("expected '%s', got '%s'", expected, actual)
@@ -140,7 +140,7 @@ func TestMarshalToNameJSON(t *testing.T) {
 		t.Fatalf("expected JSON marshaling of enum value to succeed, but got error: %v", err)
 	}
 
-	expectedMarshalValue := `{"enumField":"Test 1"}`
+	expectedMarshalValue := `{"enumField":"FIRST"}`
 	if string(bytes) != expectedMarshalValue {
 		t.Fatalf("expected '%s', got '%s'", expectedMarshalValue, string(bytes))
 	}
@@ -153,7 +153,7 @@ func TestMarshalToNameJSON(t *testing.T) {
 }
 
 func TestUnmarshalFromNameJSON(t *testing.T) {
-	jsonInput := []byte(`{"enumField":"Test 1"}`)
+	jsonInput := []byte(`{"enumField":"FIRST"}`)
 
 	var result jsonExample
 	if err := json.Unmarshal(jsonInput, &result); err != nil {
