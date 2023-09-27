@@ -1,5 +1,4 @@
-// Package enumnames implements an efficient representation and utility methods for mapping integer
-// enum values to string names.
+// Package enumnames provides efficient mapping between integer enum values and string names.
 package enumnames
 
 import (
@@ -11,6 +10,7 @@ import (
 )
 
 // Map is an immutable mapping of integer enum values to string names.
+// It must be instantiated with NewMap.
 type Map[Enum IntegerEnum] struct {
 	enumNames       []string
 	lowestEnumValue Enum
