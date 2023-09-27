@@ -61,21 +61,23 @@ func NewMap[Enum IntegerEnum](enumValuesWithNames map[Enum]string) Map[Enum] {
 
 // GetName gets the mapped name for the given enum value, or ok=false if it is not mapped.
 func (enumMap Map[Enum]) GetName(enumValue Enum) (name string, ok bool) {
-	index, inBounds := enumMap.enumToIndex(enumValue)
-	if !inBounds {
+	if !enumMap.ContainsEnumValue(enumValue) {
 		return "", false
 	}
+
+	index := enumMap.enumToIndex(enumValue)
 	return enumMap.enumNames[index], true
 }
 
 // GetNameOrFallback gets the mapped name for the given enum value.
 // If it is not mapped, returns the fallback.
 func (enumMap Map[Enum]) GetNameOrFallback(enumValue Enum, fallback string) (name string) {
-	if name, ok := enumMap.GetName(enumValue); ok {
-		return name
-	} else {
+	if !enumMap.ContainsEnumValue(enumValue) {
 		return fallback
 	}
+
+	index := enumMap.enumToIndex(enumValue)
+	return enumMap.enumNames[index]
 }
 
 // EnumValueFromName gets the corresponding enum value for the given name, or ok=false if no enum
@@ -92,8 +94,8 @@ func (enumMap Map[Enum]) EnumValueFromName(name string) (enumValue Enum, ok bool
 
 // ContainsEnumValue checks if the given enum value exists in the map.
 func (enumMap Map[Enum]) ContainsEnumValue(enumValue Enum) bool {
-	_, inBounds := enumMap.enumToIndex(enumValue)
-	return inBounds
+	return enumValue >= enumMap.lowestEnumValue &&
+		enumValue < Enum(len(enumMap.enumNames))+enumMap.lowestEnumValue
 }
 
 // ContainsName checks if any enum value maps to the given name.
@@ -150,18 +152,6 @@ func (enumMap Map[Enum]) String() string {
 	return builder.String()
 }
 
-func (enumMap Map[Enum]) enumToIndex(enumValue Enum) (index Enum, inBounds bool) {
-	index = enumValue - enumMap.lowestEnumValue
-	if index < 0 || int(index) >= len(enumMap.enumNames) {
-		return 0, false
-	}
-	return index, true
-}
-
-func (enumMap Map[Enum]) indexToEnum(index int) (enumValue Enum) {
-	return Enum(index) + enumMap.lowestEnumValue
-}
-
 // MarshalToNameJSON marshals the given enum value to its mapped name.
 // It errors if the given enum value is not mapped.
 func (enumMap Map[Enum]) MarshalToNameJSON(enumValue Enum) ([]byte, error) {
@@ -190,4 +180,12 @@ func (enumMap Map[Enum]) UnmarshalFromNameJSON(bytes []byte, dest *Enum) error {
 			strings.Join(enumMap.enumNames, "', '"),
 		)
 	}
+}
+
+func (enumMap Map[Enum]) enumToIndex(enumValue Enum) (index Enum) {
+	return enumValue - enumMap.lowestEnumValue
+}
+
+func (enumMap Map[Enum]) indexToEnum(index int) (enumValue Enum) {
+	return Enum(index) + enumMap.lowestEnumValue
 }
