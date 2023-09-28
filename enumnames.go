@@ -131,7 +131,7 @@ func (enumMap Map[Enum]) Names() []string {
 	return names
 }
 
-// String returns a string repsentation of the map, mapping integer enum values to their names.
+// String returns a string representation of the map, mapping integer enum values to their names.
 func (enumMap Map[Enum]) String() string {
 	var builder strings.Builder
 
@@ -163,7 +163,7 @@ func (enumMap Map[Enum]) MarshalToNameJSON(enumValue Enum) ([]byte, error) {
 }
 
 // UnmarshalFromNameJSON unmarshals the given bytes with an enum name to the enum value pointed to
-// by dest. It errors if it failed to unmarshal to string, or if the given enum name is not mapped.
+// by dest. It errors if it fails to unmarshal to string, or if the given enum name is not mapped.
 func (enumMap Map[Enum]) UnmarshalFromNameJSON(bytes []byte, dest *Enum) error {
 	var name string
 	if err := json.Unmarshal(bytes, &name); err != nil {
