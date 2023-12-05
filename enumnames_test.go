@@ -50,9 +50,9 @@ func TestGetNameorFallback(t *testing.T) {
 	}
 }
 
-func TestEnumValueFromName(t *testing.T) {
+func TestGetKey(t *testing.T) {
 	for expectedEnumValue, name := range testEnumMap {
-		enumValue, ok := testEnumNames.EnumValueFromName(name)
+		enumValue, ok := testEnumNames.GetKey(name)
 		if !ok {
 			t.Fatalf("expected '%d', got ok=false", expectedEnumValue)
 		}
@@ -62,21 +62,21 @@ func TestEnumValueFromName(t *testing.T) {
 	}
 
 	invalidName := "garbage user input"
-	_, ok := testEnumNames.EnumValueFromName(invalidName)
+	_, ok := testEnumNames.GetKey(invalidName)
 	if ok {
 		t.Fatal("expected EnumValueFromName to return ok=false with invalid enum name")
 	}
 }
 
-func TestContainsEnumValue(t *testing.T) {
+func TestContainsKey(t *testing.T) {
 	for enumValue := range testEnumMap {
-		if !testEnumNames.ContainsEnumValue(enumValue) {
+		if !testEnumNames.ContainsKey(enumValue) {
 			t.Fatalf("expected enum names to contain entry for enum value '%d'", enumValue)
 		}
 	}
 
 	invalidEnumValue := TestEnum(100)
-	if testEnumNames.ContainsEnumValue(invalidEnumValue) {
+	if testEnumNames.ContainsKey(invalidEnumValue) {
 		t.Fatal("expected ContainsEnumValue to return false for invalid enum value")
 	}
 }
@@ -101,8 +101,8 @@ func TestSize(t *testing.T) {
 	}
 }
 
-func TestEnumValues(t *testing.T) {
-	enumValues := testEnumNames.EnumValues()
+func TestKeys(t *testing.T) {
+	enumValues := testEnumNames.Keys()
 
 	if len(enumValues) != 3 {
 		t.Fatalf("expected enum values with length 3, got %+v", enumValues)
@@ -133,7 +133,7 @@ func TestString(t *testing.T) {
 	}
 }
 
-func TestNonContiguousEnumValues(t *testing.T) {
+func TestNonContiguousKeys(t *testing.T) {
 	defer func() {
 		if err := recover(); err == nil {
 			t.Fatal("expected NewMap to panic on non-contiguous values")

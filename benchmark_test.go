@@ -7,12 +7,12 @@ import (
 	"hermannm.dev/enumnames"
 )
 
-var enumMap, nameMap, valueMap = makeBenchmarkMaps(255)
+var enumMap, nameMap, reverseNameMap = makeBenchmarkMaps(255)
 
 // Global variables to avoid the compiler optimizing away our benchmarked function calls
 // (see https://dave.cheney.net/2013/06/30/how-to-write-benchmarks-in-go)
 var globalName string
-var globalValue uint8
+var globalKey uint8
 
 func BenchmarkGetName(b *testing.B) {
 	var name string
@@ -34,40 +34,40 @@ func BenchmarkGetNameWithMap(b *testing.B) {
 	globalName = name
 }
 
-func BenchmarkEnumValueFromName(b *testing.B) {
+func BenchmarkGetKey(b *testing.B) {
 	var value uint8
 
 	for i := 0; i < b.N; i++ {
-		value, _ = enumMap.EnumValueFromName("Test 1")
+		value, _ = enumMap.GetKey("Test 1")
 	}
 
-	globalValue = value
+	globalKey = value
 }
 
-func BenchmarkEnumValueFromNameWithMap(b *testing.B) {
+func BenchmarkGetKeyWithMap(b *testing.B) {
 	var value uint8
 
 	for i := 0; i < b.N; i++ {
-		value = valueMap["Test 1"]
+		value = reverseNameMap["Test 1"]
 	}
 
-	globalValue = value
+	globalKey = value
 }
 
 func makeBenchmarkMaps(size uint8) (
 	enumMap enumnames.Map[uint8],
 	nameMap map[uint8]string,
-	valueMap map[string]uint8,
+	reverseNameMap map[string]uint8,
 ) {
 	nameMap = make(map[uint8]string, int(size))
 	for i := uint8(0); i < size; i++ {
 		nameMap[i] = fmt.Sprintf("Test %d", i)
 	}
 
-	valueMap = make(map[string]uint8, len(nameMap))
+	reverseNameMap = make(map[string]uint8, len(nameMap))
 	for enumValue, name := range nameMap {
-		valueMap[name] = enumValue
+		reverseNameMap[name] = enumValue
 	}
 
-	return enumnames.NewMap(nameMap), nameMap, valueMap
+	return enumnames.NewMap(nameMap), nameMap, reverseNameMap
 }

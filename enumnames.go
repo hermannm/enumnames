@@ -12,8 +12,8 @@ import (
 // Map is an immutable mapping of integer enum values to string names.
 // It must be instantiated with NewMap.
 type Map[Enum IntegerEnum] struct {
-	enumNames       []string
-	lowestEnumValue Enum
+	names     []string
+	lowestKey Enum
 }
 
 type IntegerEnum interface {
@@ -24,83 +24,79 @@ type IntegerEnum interface {
 // also provides utility methods for getting and marshaling enum names and values.
 //
 // Panics if:
-//   - the range of enum values in the map is not contiguous
+//   - the range of integer enum keys in the map is not contiguous
 //   - there are duplicate names in the map
-func NewMap[Enum IntegerEnum](enumValuesWithNames map[Enum]string) Map[Enum] {
-	var lowestEnumValue Enum
+func NewMap[Enum IntegerEnum](enumNames map[Enum]string) Map[Enum] {
+	var lowestKey Enum
 	first := true
-	for enumValue := range enumValuesWithNames {
-		if first || enumValue < lowestEnumValue {
-			lowestEnumValue = enumValue
+	for key := range enumNames {
+		if first || key < lowestKey {
+			lowestKey = key
 			first = false
 		}
 	}
 
-	capacity := len(enumValuesWithNames)
-
+	size := len(enumNames)
 	enumMap := Map[Enum]{
-		enumNames:       make([]string, capacity),
-		lowestEnumValue: lowestEnumValue,
+		names:     make([]string, size),
+		lowestKey: lowestKey,
 	}
 
-	for enumValue, name := range enumValuesWithNames {
-		index := enumValue - lowestEnumValue
-		if int(index) >= capacity {
-			panic("non-contiguous enum values given to enumnames.NewMap")
+	for key, name := range enumNames {
+		index := enumMap.keyToIndex(key)
+		if int(index) >= size {
+			panic("non-contiguous enum keys given to enumnames.NewMap")
 		}
-
-		if slices.Contains(enumMap.enumNames, name) {
+		if slices.Contains(enumMap.names, name) {
 			panic(fmt.Sprintf("duplicate enum name '%s' given to enumnames.NewMap", name))
 		}
-
-		enumMap.enumNames[index] = name
+		enumMap.names[index] = name
 	}
 
 	return enumMap
 }
 
-// GetName gets the mapped name for the given enum value, or ok=false if it is not mapped.
-func (enumMap Map[Enum]) GetName(enumValue Enum) (name string, ok bool) {
-	if !enumMap.ContainsEnumValue(enumValue) {
+// GetName returns the mapped name for the given enum key, or ok=false if no mapping is found.
+func (enumMap Map[Enum]) GetName(key Enum) (name string, ok bool) {
+	if !enumMap.ContainsKey(key) {
 		return "", false
 	}
 
-	index := enumMap.enumToIndex(enumValue)
-	return enumMap.enumNames[index], true
+	index := enumMap.keyToIndex(key)
+	return enumMap.names[index], true
 }
 
-// GetNameOrFallback gets the mapped name for the given enum value.
-// If it is not mapped, returns the fallback.
-func (enumMap Map[Enum]) GetNameOrFallback(enumValue Enum, fallback string) (name string) {
-	if !enumMap.ContainsEnumValue(enumValue) {
+// GetNameOrFallback returns the mapped name for the given enum key, or the fallback if no mapping
+// is found.
+func (enumMap Map[Enum]) GetNameOrFallback(key Enum, fallback string) (name string) {
+	if !enumMap.ContainsKey(key) {
 		return fallback
 	}
 
-	index := enumMap.enumToIndex(enumValue)
-	return enumMap.enumNames[index]
+	index := enumMap.keyToIndex(key)
+	return enumMap.names[index]
 }
 
-// EnumValueFromName gets the corresponding enum value for the given name, or ok=false if no enum
-// value is mapped to the name.
-func (enumMap Map[Enum]) EnumValueFromName(name string) (enumValue Enum, ok bool) {
-	for i, candidate := range enumMap.enumNames {
+// GetKey returns the enum key mapped to the given name, or ok=false if no mapping is found.
+func (enumMap Map[Enum]) GetKey(name string) (key Enum, ok bool) {
+	for i, candidate := range enumMap.names {
 		if candidate == name {
-			return enumMap.indexToEnum(i), true
+			return enumMap.indexToKey(i), true
 		}
 	}
 
 	return 0, false
 }
 
-// ContainsEnumValue checks if the given enum value exists in the map.
-func (enumMap Map[Enum]) ContainsEnumValue(enumValue Enum) bool {
-	return enumValue >= enumMap.lowestEnumValue &&
-		enumValue < Enum(len(enumMap.enumNames))+enumMap.lowestEnumValue
+// ContainsKey checks if the given enum key exists in the map.
+func (enumMap Map[Enum]) ContainsKey(key Enum) bool {
+	return key >= enumMap.lowestKey &&
+		key < Enum(len(enumMap.names))+enumMap.lowestKey
 }
 
-// ContainsName checks if any enum value maps to the given name.
+// ContainsName checks if any enum key maps to the given name.
 func (enumMap Map[Enum]) ContainsName(name string) bool {
-	for _, candidate := range enumMap.enumNames {
+	for _, candidate := range enumMap.names {
 		if candidate == name {
 			return true
 		}
@@ -108,39 +104,39 @@ func (enumMap Map[Enum]) ContainsName(name string) bool {
 	return false
 }
 
-// Size returns the number of enum values in the map.
+// Size returns the number of enum-to-name entries in the map.
 func (enumMap Map[Enum]) Size() int {
-	return len(enumMap.enumNames)
+	return len(enumMap.names)
 }
 
-// EnumValues returns a slice of all enum values in the map, sorted by their integer value.
+// Keys returns a slice of all enum keys in the map, sorted by their integer value.
 // Mutating it will not affect the map.
-func (enumMap Map[Enum]) EnumValues() []Enum {
-	values := make([]Enum, len(enumMap.enumNames))
-	for i := range enumMap.enumNames {
-		values[i] = enumMap.indexToEnum(i)
+func (enumMap Map[Enum]) Keys() []Enum {
+	keys := make([]Enum, len(enumMap.names))
+	for i := range enumMap.names {
+		keys[i] = enumMap.indexToKey(i)
 	}
-	return values
+	return keys
 }
 
-// Names returns a slice of all enum names in the map, sorted by their mapped enum integer value.
+// Names returns a slice of all enum names in the map, sorted by the integer value of their keys.
 // Mutating it will not affect the map.
 func (enumMap Map[Enum]) Names() []string {
-	names := make([]string, len(enumMap.enumNames))
-	copy(names, enumMap.enumNames)
+	names := make([]string, len(enumMap.names))
+	copy(names, enumMap.names)
 	return names
 }
 
-// String returns a string representation of the map, mapping integer enum values to their names.
+// String returns a string representation of the map, mapping integer enum keys to their names.
 func (enumMap Map[Enum]) String() string {
 	var builder strings.Builder
 
-	lowestEnumValue := int(enumMap.lowestEnumValue)
-	lastIndex := len(enumMap.enumNames) - 1
+	lowestKey := int(enumMap.lowestKey)
+	lastIndex := len(enumMap.names) - 1
 
 	builder.WriteString("enumnames.Map[")
-	for i, name := range enumMap.enumNames {
-		builder.WriteString(strconv.Itoa(i + lowestEnumValue))
+	for i, name := range enumMap.names {
+		builder.WriteString(strconv.Itoa(i + lowestKey))
 		builder.WriteRune(':')
 		builder.WriteString(name)
 		if i != lastIndex {
@@ -152,40 +148,41 @@ func (enumMap Map[Enum]) String() string {
 	return builder.String()
 }
 
-// MarshalToNameJSON marshals the given enum value to its mapped name.
-// It errors if the given enum value is not mapped.
-func (enumMap Map[Enum]) MarshalToNameJSON(enumValue Enum) ([]byte, error) {
-	if name, ok := enumMap.GetName(enumValue); ok {
+// MarshalToNameJSON marshals the given enum key to its mapped name.
+// It errors if the key is not mapped.
+func (enumMap Map[Enum]) MarshalToNameJSON(key Enum) ([]byte, error) {
+	if name, ok := enumMap.GetName(key); ok {
 		return json.Marshal(name)
 	} else {
-		return nil, fmt.Errorf("enum value '%d' not registered in enum name map", enumValue)
+		return nil, fmt.Errorf("invalid value '%d': key not found in enum name map", key)
 	}
 }
 
-// UnmarshalFromNameJSON unmarshals the given bytes with an enum name to the enum value pointed to
-// by dest. It errors if it fails to unmarshal to string, or if the given enum name is not mapped.
-func (enumMap Map[Enum]) UnmarshalFromNameJSON(bytes []byte, dest *Enum) error {
+// UnmarshalFromNameJSON unmarshals the given enum name JSON to string, and sets dest to the enum
+// key mapped to the name.
+// It errors if string unmarshaling fails, or if the unmarshaled enum name is not mapped.
+func (enumMap Map[Enum]) UnmarshalFromNameJSON(nameJSON []byte, dest *Enum) error {
 	var name string
-	if err := json.Unmarshal(bytes, &name); err != nil {
+	if err := json.Unmarshal(nameJSON, &name); err != nil {
 		return err
 	}
 
-	if enumValue, ok := enumMap.EnumValueFromName(name); ok {
-		*dest = enumValue
+	if key, ok := enumMap.GetKey(name); ok {
+		*dest = key
 		return nil
 	} else {
 		return fmt.Errorf(
 			"invalid value '%s', expected one of: '%s'",
 			name,
-			strings.Join(enumMap.enumNames, "', '"),
+			strings.Join(enumMap.names, "', '"),
 		)
 	}
 }
 
-func (enumMap Map[Enum]) enumToIndex(enumValue Enum) (index Enum) {
-	return enumValue - enumMap.lowestEnumValue
+func (enumMap Map[Enum]) keyToIndex(key Enum) (index Enum) {
+	return key - enumMap.lowestKey
 }
 
-func (enumMap Map[Enum]) indexToEnum(index int) (enumValue Enum) {
-	return Enum(index) + enumMap.lowestEnumValue
+func (enumMap Map[Enum]) indexToKey(index int) (key Enum) {
+	return Enum(index) + enumMap.lowestKey
 }
