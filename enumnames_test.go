@@ -140,10 +140,12 @@ func TestNonContiguousKeys(t *testing.T) {
 		}
 	}()
 
-	enumnames.NewMap(map[uint8]string{
-		0: "FIRST",
-		2: "THIRD",
-	})
+	enumnames.NewMap(
+		map[uint8]string{
+			0: "FIRST",
+			2: "THIRD",
+		},
+	)
 }
 
 func TestDuplicateEnumNames(t *testing.T) {
@@ -153,28 +155,32 @@ func TestDuplicateEnumNames(t *testing.T) {
 		}
 	}()
 
-	enumnames.NewMap(map[uint8]string{
-		0: "FIRST",
-		1: "FIRST",
-	})
+	enumnames.NewMap(
+		map[uint8]string{
+			0: "FIRST",
+			1: "FIRST",
+		},
+	)
 }
 
 func TestNegativeEnum(t *testing.T) {
 	type NegativeEnum int8
 
 	const (
-		Neg1 NegativeEnum = -2
-		Neg2 NegativeEnum = -1
-		Neg3 NegativeEnum = 0
+		neg1 NegativeEnum = -2
+		neg2 NegativeEnum = -1
+		neg3 NegativeEnum = 0
 	)
 
-	negativeEnumNames := enumnames.NewMap(map[NegativeEnum]string{
-		Neg1: "FIRST",
-		Neg2: "SECOND",
-		Neg3: "THIRD",
-	})
+	negativeEnumNames := enumnames.NewMap(
+		map[NegativeEnum]string{
+			neg1: "FIRST",
+			neg2: "SECOND",
+			neg3: "THIRD",
+		},
+	)
 
-	name, ok := negativeEnumNames.GetName(Neg2)
+	name, ok := negativeEnumNames.GetName(neg2)
 	expectedName := "SECOND"
 	if !ok {
 		t.Fatalf("expected '%s', got ok=false", expectedName)
