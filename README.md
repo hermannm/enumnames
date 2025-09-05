@@ -10,7 +10,7 @@ Run `go get hermannm.dev/enumnames` to add it to your project!
 
 - [Usage](#usage)
 - [Benchmarks](#benchmarks)
-- [Developer's guide](#developers-guide)
+- [Maintainer's guide](#maintainers-guide)
 
 ## Usage
 
@@ -77,9 +77,9 @@ which uses `enumnames.Map`, is 10x faster than `BenchmarkGetNameWithMap`, which 
 `map[uint8]string`. The reverse lookup, `BenchmarkGetKey`, is 50% faster than
 `BenchmarkGetKeyWithMap`, which uses a `map[string]uint8`.
 
-## Developer's guide
+## Maintainer's guide
 
-When publishing a new release:
+### Publishing a new release
 
 - Run tests and linter ([`golangci-lint`](https://golangci-lint.run/)):
   ```
